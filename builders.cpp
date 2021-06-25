@@ -191,11 +191,11 @@ vector build_Fe(int n, double a, double b, std::function<double(double)> f) {
                 break;
 
             case 2: // Quadrático
-                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n2pol(row,e);},2);
+                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n2pol(row,e);},3);
                 break;
             
             default: // Linear
-                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n1pol(row,e);},2);
+                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n1pol(row,e);},3);
             }
     }
 
@@ -206,7 +206,7 @@ vector build_Fe(int n, double a, double b, std::function<double(double)> f) {
 
 // test Fe
 TEST(LoadTest, Fe1Test) {
-    auto Fe1 = build_Fe(1,0,0,[](double x){return 1;});
+    auto Fe1 = build_Fe(1,0,1,[](double x){return 1;});
     std::vector<double> Fe1Test = {1.0,1.0}; 
 
     for(int i = 0; i < Fe1.n; i++) {
@@ -218,7 +218,7 @@ TEST(LoadTest, Fe1Test) {
 
 // test Fe
 TEST(LoadTest, Fe3Test) {
-    auto Fe2 = build_Fe(3,0,0,[](double x){return 1;});
+    auto Fe2 = build_Fe(3,0,1,[](double x){return 1;});
     std::vector<double> Fe2Test = { 0.25, 0.75, 0.75, 0.25 }; 
 
     for(int i = 0; i < Fe2.n; i++) {
@@ -229,7 +229,7 @@ TEST(LoadTest, Fe3Test) {
 }
 
 TEST(LoadTest, Fe2Test) {
-    auto Fe2 = build_Fe(2,0,0,[](double x){return 1;});
+    auto Fe2 = build_Fe(2,0,1,[](double x){return 1;});
     std::vector<double> Fe2Test = {1.0/3.0,4.0/3.0,1.0/3.0}; 
 
     for(int i = 0; i < Fe2.n; i++) {
@@ -258,6 +258,7 @@ std::vector<std::vector<int>> build_LM(int nX, int n) {
         for(int k =0 ; k < n+1; k++) {
             global_p.push_back(index_p + k);
         }
+
         LM.push_back(global_p);
 
         index_p += n;
@@ -297,7 +298,12 @@ TEST(BuildingTest, LM2Test) {
 
 }
 
-matrix build_K(std::vector<double> X, std::vector<std::vector<int>> LM, std::function<double(double)> alpha, std::function<double(double)> beta, std::function<double(double)> gamma, int n) {
+matrix build_K(std::vector<double> X,
+               std::vector<std::vector<int>> LM, 
+               std::function<double(double)> alpha, 
+               std::function<double(double)> beta, 
+               std::function<double(double)> gamma, 
+               int n) {
     int N = X.size();
 
     // Número de pontos para K
@@ -310,7 +316,7 @@ matrix build_K(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
     double he = X[1]-X[0];
 
     auto Ae = build_Ae(n,alpha);
-    auto Be = build_Ae(n,beta);
+    auto Be = build_Be(n,beta);
     auto Ce = build_Ce(n,gamma);
 
     double* K = new double[size_K*size_K];
@@ -420,15 +426,18 @@ vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
 
     double he = X[1]-X[0];
 
+    
+    
 
     double* F = new double[sizeF];
+    
     for(int i = 0; i < sizeF; i++) F[i] = 0;
 
     int e_index = 0 ; // index do elemento
     int local_i;
     for(auto e: LM) {
 
-        auto Fe = build_Fe(n, e.front(), e.back(), f);
+        auto Fe = build_Fe(n, X[e.front()], X[e.back()], f);
 
         for(auto global_i: e) {
             local_i = global_i - n*e_index;
@@ -440,11 +449,11 @@ vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
         delete[] Fe.m;
     }
 
-    auto Fe = build_Fe(n, LM.back().front(), LM.back().back(), f);
+    auto Fe = build_Fe(n, X[LM.front().front()], X[LM.front().back()], f);
     F[0] += he/2*Fe.m[Fe.n-1];
     delete[] Fe.m;
 
-    Fe = build_Fe(n, LM.front().front(), LM.front().back(), f);
+    Fe = build_Fe(n, X[LM.back().front()], X[LM.back().back()], f);
     F[sizeF-1] += he/2*Fe.m[0];
     delete[] Fe.m;
 
@@ -462,26 +471,29 @@ TEST(BuildingTest, FTest) {
 
     auto F = build_F(X, LM, [](double x){return 1;}, 1 );
 
-    std::vector<int> FTest = {1,1};
+    std::vector<double> FTest = {1.0,1.0};
 
     for(int i = 0; i < F.n; i++) {
-        ASSERT_EQ( (int)round(F.m[i]), FTest[i] ) << "Valores diferentes na matriz F(2) no índice " << i;
-    }
-
-    N = 3;
-    X = linspace(0.0, 1.0, N);
-    LM = build_LM(N,1);
-
-    auto F2 = build_F(X, LM, [](double x){return 1;}, 1);
-
-    std::vector<double> FTest3 = {0.5,0.5,0.5};
-
-    for(int i = 0; i < F2.n; i++) {
-        ASSERT_LT( abs(F2.m[i]- FTest3[i]),0.00001 ) << "Valores diferentes na matriz F(3) no índice " << i;
+        ASSERT_LT( abs(F.m[i]-FTest[i]), 0.0001 ) << "F["<<i<<"] = " << F.m[i] << " || FTest["<<i<<"] = "<<FTest[i];
     }
 
     delete[] F.m;
-    delete[] F2.m;
+}
+
+TEST(BuildingTest, FTestN2) {
+    int N = 3;
+    auto X = linspace(0.0, 1.0, N);
+    auto LM = build_LM(N,1);
+
+    auto F = build_F(X, LM, [](double x){return 1;}, 1 );
+
+    std::vector<double> FTest3 = {0.5,0.5,0.5};
+
+    for(int i = 0; i < F.n; i++) {
+        ASSERT_LT( abs(F.m[i]-FTest3[i]), 0.0001 )  << "F["<<i<<"] = " << F.m[i] << " || FTest["<<i<<"] = "<<FTest3[i];
+    }
+
+    delete[] F.m;
 }
 
 TEST(BuildingTest, F2Test) {
@@ -494,7 +506,7 @@ TEST(BuildingTest, F2Test) {
     std::vector<double> FTest = {1.0/6.0, 1.0/3.0, 1.0/6.0, 1.0/3.0, 1.0/6.0};
 
     for(int i = 0; i < F.n; i++) {
-        ASSERT_LT( abs(F.m[i]-FTest[i]), 0.0001 ) << "Valores diferentes na matriz F(3) no índice " << i;
+        ASSERT_LT( abs(F.m[i]-FTest[i]), 0.0001 ) << "F["<<i<<"] = " << F.m[i] << " || FTest["<<i<<"] = "<<FTest[i];
     }
 
     delete[] F.m;
