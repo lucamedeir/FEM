@@ -144,15 +144,15 @@ matrix build_Be(int n, std::function<double(double)> f) {
             switch (n)
             {
             case 3: // Cúbico
-                Be[col + row*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n3pol(row,x)*n3dpol(col,x);},4);
+                Be[row + col*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n3pol(row,x)*n3dpol(col,x);},4);
                 break;
 
             case 2: // Quadrático
-                Be[col + row*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n2pol(row,x)*n2dpol(col,x);},2);
+                Be[row + col*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n2pol(row,x)*n2dpol(col,x);},2);
                 break;
             
             default: // Linear
-                Be[col + row*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n1pol(row,x)*n1dpol(col,x);},2);
+                Be[row + col*width] = gauss_legendre([&row,&col, f](double x){return f(x)*n1pol(row,x)*n1dpol(col,x);},2);
             }
         }
     }
@@ -166,7 +166,7 @@ matrix build_Be(int n, std::function<double(double)> f) {
 // test Ae
 TEST(StiffnessTest, BeTest) {
     auto Be = build_Be(1, [](double x){return 1;});
-    std::vector<double> BeTest = {-1.0/2.0, 1.0/2.0, -1.0/2.0, 1.0/2.0}; 
+    std::vector<double> BeTest = {-1.0/2.0, -1.0/2.0, 1.0/2.0, 1.0/2.0}; 
 
     for(int i = 0; i < Be.nrows*Be.ncols; i++) {
         ASSERT_LT( abs(Be.m[i]-BeTest[i]), 0.00001 ) << "Valores diferentes na matriz Be(1) no índice " << i;
@@ -175,7 +175,7 @@ TEST(StiffnessTest, BeTest) {
     delete [] Be.m;
 }
 
-vector build_Fe(int n, std::function<double(double)> f) {
+vector build_Fe(int n, double a, double b, std::function<double(double)> f) {
 
     assert(n >= 1);
 
@@ -187,15 +187,15 @@ vector build_Fe(int n, std::function<double(double)> f) {
         switch (n)
             {
             case 3: // Cúbico
-                Fe[row] = gauss_legendre([&row, f](double x){return f(x)*n3pol(row,x);},3);
+                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n3pol(row,e);},3);
                 break;
 
             case 2: // Quadrático
-                Fe[row] = gauss_legendre([&row, f](double x){return f(x)*n2pol(row,x);},2);
+                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n2pol(row,e);},2);
                 break;
             
             default: // Linear
-                Fe[row] = gauss_legendre([&row, f](double x){return f(x)*n1pol(row,x);},2);
+                Fe[row] = gauss_legendre([&row, &a, &b, f](double e){return f( (b-a)/2*(e+1)+a )*n1pol(row,e);},2);
             }
     }
 
@@ -206,7 +206,7 @@ vector build_Fe(int n, std::function<double(double)> f) {
 
 // test Fe
 TEST(LoadTest, Fe1Test) {
-    auto Fe1 = build_Fe(1,[](double x){return 1;});
+    auto Fe1 = build_Fe(1,0,0,[](double x){return 1;});
     std::vector<double> Fe1Test = {1.0,1.0}; 
 
     for(int i = 0; i < Fe1.n; i++) {
@@ -218,7 +218,7 @@ TEST(LoadTest, Fe1Test) {
 
 // test Fe
 TEST(LoadTest, Fe3Test) {
-    auto Fe2 = build_Fe(3,[](double x){return 1;});
+    auto Fe2 = build_Fe(3,0,0,[](double x){return 1;});
     std::vector<double> Fe2Test = { 0.25, 0.75, 0.75, 0.25 }; 
 
     for(int i = 0; i < Fe2.n; i++) {
@@ -229,7 +229,7 @@ TEST(LoadTest, Fe3Test) {
 }
 
 TEST(LoadTest, Fe2Test) {
-    auto Fe2 = build_Fe(2,[](double x){return 1;});
+    auto Fe2 = build_Fe(2,0,0,[](double x){return 1;});
     std::vector<double> Fe2Test = {1.0/3.0,4.0/3.0,1.0/3.0}; 
 
     for(int i = 0; i < Fe2.n; i++) {
@@ -420,7 +420,6 @@ vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
 
     double he = X[1]-X[0];
 
-    auto Fe = build_Fe(n,f);
 
     double* F = new double[sizeF];
     for(int i = 0; i < sizeF; i++) F[i] = 0;
@@ -429,21 +428,29 @@ vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
     int local_i;
     for(auto e: LM) {
 
+        auto Fe = build_Fe(n, e.front(), e.back(), f);
+
         for(auto global_i: e) {
             local_i = global_i - n*e_index;
-
 
             F[global_i] += he/2*Fe.m[local_i];
         }
         e_index++;
+
+        delete[] Fe.m;
     }
 
+    auto Fe = build_Fe(n, LM.back().front(), LM.back().back(), f);
     F[0] += he/2*Fe.m[Fe.n-1];
+    delete[] Fe.m;
+
+    Fe = build_Fe(n, LM.front().front(), LM.front().back(), f);
     F[sizeF-1] += he/2*Fe.m[0];
+    delete[] Fe.m;
 
     vector result = {F, sizeF};
 
-    delete[] Fe.m;
+    
 
     return result;
 }

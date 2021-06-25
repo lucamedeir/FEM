@@ -149,6 +149,7 @@ inline double map_x_to_e(double x, double a, double b) {
     return 2*(x-a)/(b-a)-1;
 }
 
+
 void interpolate(double x_eval, double a, double b, int order, double* W, double &u, double &du) {
     u = 0;
     du = 0;

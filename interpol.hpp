@@ -11,7 +11,6 @@ double n3dpol(int i, double x);
 
 inline double map_x_to_e(double x, double a, double b);
 
-
 double pol(int order, int i, double x);
 double dpol(int order, int i, double x);
 

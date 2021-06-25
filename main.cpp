@@ -75,7 +75,7 @@ void execute_and_print_error(const int NumberOfPoints,
     auto alpha_f = [&alpha](double x) {return alpha;};
     auto beta_f = [&beta](double){return beta;};
     auto gamma_f = [&gamma](double x) {return gamma;};
-    auto f = [](double x) {return 1;};
+    auto f = [](double x) {return x;};
 
     auto K = build_K(X, LM, alpha_f, beta_f, gamma_f, order);
     auto F = build_F(X, LM, f, order);
@@ -107,7 +107,7 @@ void execute(const int NumberOfPoints,
     auto alpha_f = [&alpha](double x) {return alpha;};
     auto beta_f = [&beta](double){return beta;};
     auto gamma_f = [&gamma](double x) {return gamma;};
-    auto f = [](double x) {return 1;};
+    auto f = [](double x) {return x;};
 
     auto K = build_K(X, LM, alpha_f, beta_f, gamma_f, order);
     auto F = build_F(X, LM, f, order);
@@ -141,7 +141,7 @@ void execute_and_interpolate(const int NumberOfPoints,
     auto alpha_f = [&alpha](double x) {return alpha;};
     auto beta_f = [&beta](double){return beta;};
     auto gamma_f = [&gamma](double x) {return gamma;};
-    auto f = [](double x) {return 1;};
+    auto f = [](double x) {return x;};
 
     auto K = build_K(X, LM, alpha_f, beta_f, gamma_f, order);
     auto F = build_F(X, LM, f, order);
