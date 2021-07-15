@@ -1,13 +1,6 @@
 #include "interpol.hpp"
 
 
-inline double n1pol_a(double x) {
-    return 0.5-x/2.0;
-}
-
-inline double n1pol_b(double x) {
-    return 0.5+x/2.0;
-}
 
 double n1pol(int i, double x) {
     switch(i) {
@@ -17,13 +10,7 @@ double n1pol(int i, double x) {
     return n1pol_b(x);
 }
 
-inline double n1dpol_a(double x) {
-    return -0.5;
-}
 
-inline double n1dpol_b(double x) {
-    return 0.5;
-}
 
 double n1dpol(int i, double x) {
     switch(i) {
@@ -32,6 +19,39 @@ double n1dpol(int i, double x) {
 
     return n1dpol_b(x);
 }
+
+double n1pol2D(int i, double x, double y) {
+    switch(i) {
+        case 0: return pol2d_a(x,y);
+        case 1: return pol2d_b(x,y);
+        case 2: return pol2d_c(x,y);
+    }
+
+    return pol2d_d(x,y);
+}
+
+
+double n1dx_pol2D(int i, double x, double y) {
+    switch(i) {
+        case 0: return dx_pol2d_a(x,y);
+        case 1: return dx_pol2d_b(x,y);
+        case 2: return dx_pol2d_c(x,y);
+    }
+
+    return dx_pol2d_d(x,y);
+}
+
+double n1dy_pol2D(int i, double x, double y) {
+    switch(i) {
+        case 0: return dy_pol2d_a(x,y);
+        case 1: return dy_pol2d_b(x,y);
+        case 2: return dy_pol2d_c(x,y);
+    }
+
+    return dy_pol2d_d(x,y);
+}
+
+
 
 inline double n2pol_a(double x) {
     return x*x/2.0 -x/2.0;

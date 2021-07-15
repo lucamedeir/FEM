@@ -17,5 +17,5 @@ target_link_libraries(fem cblas)
 target_link_libraries(fem blas)
 
 
-#include(GoogleTest)
-#gtest_discover_tests(fem)
+include(GoogleTest)
+gtest_discover_tests(fem)

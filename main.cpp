@@ -1,11 +1,12 @@
 #include<iostream>
 #include<vector>
-//#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <args-parser/all.hpp>
 #include "builders.hpp"
 #include "utils.hpp"
 #include "interpol.hpp"
 #include <cmath>
+#include "tests.cpp"
 
 inline double dsolution(double x) {
     return 1.0/2.0-x;
@@ -254,10 +255,10 @@ int parser(int argc, char** argv, int &N, int &order, double &alpha, double &bet
 }
 
 
-int main(int argc, char **argv) {/*
+int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     auto test = RUN_ALL_TESTS();
-*/
+
     int NumberOfPoints = 2;
     int NInt = 4;
     bool printInterpolation = false;
@@ -269,10 +270,10 @@ int main(int argc, char **argv) {/*
     double ui = 0;
     double uf = 0;
    
-    int result = parser(argc, argv, NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt, printInterpolation, printError);
-    //int result = 0;
+    //int result = parser(argc, argv, NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt, printInterpolation, printError);
+    int result = 0;
 
-
+/*
     if(result == 0) {
         if (printInterpolation) {
             execute_and_interpolate(NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt);
@@ -281,9 +282,9 @@ int main(int argc, char **argv) {/*
         } else {
             execute(NumberOfPoints, order, alpha, beta, gamma, ui, uf);
         }
-    }
+    }*/
 
 
-    //return test;
-    return 0;
+    return test;
+    //return 0;
 }

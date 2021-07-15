@@ -1,5 +1,5 @@
 #pragma once
-
+#include <functional>
 
 typedef struct matrix {
     double* m;
@@ -12,12 +12,15 @@ typedef struct vector {
     int n;
 } vector;
 
+matrix build_Ce2D(std::function<double(double,double)> f);
+matrix build_Ae2D(std::function<double(double,double)> f);
+
 
 matrix build_Ce(int n, std::function<double(double)> f);
 matrix build_Ae(int n, std::function<double(double)> f);
 matrix build_Be(int n, std::function<double(double)> f);
 
-vector build_Fe(int n, std::function<double(double)> f);
+vector build_Fe(int n, double a, double b, std::function<double(double)> f);
 std::vector<std::vector<int>> build_LM(int nX, int n);
 matrix build_K(std::vector<double> X, std::vector<std::vector<int>> LM, std::function<double(double)> alpha, std::function<double(double)> beta, std::function<double(double)> gamma, int n);
 vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::function<double(double)> f,  int n);

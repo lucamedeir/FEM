@@ -84,25 +84,20 @@ double gauss_legendre(std::function<double(double)> f, int n) {
     return eval;
 }
 
-// test gauss_legendre 
-TEST(IntegralTest, gauss_legendreTest) {
+double gauss_legendre2D(std::function<double(double,double)> f, int n) {
+    double eval = 0;
 
-    auto result = gauss_legendre([](double x){return x*x;},2);
+    assert(n>=2);
 
-    ASSERT_EQ((int)round(result*3), 2) << "Teste da integral de x*x";
+    for(auto gauss_x: g_roots[n-2]) {
+        for(auto gauss_y: g_roots[n-2]) {
+            eval += gauss_x.weight*gauss_y.weight*f(gauss_x.abscissa,gauss_y.abscissa);
+        }
+    } 
 
-    result = gauss_legendre([](double x){return x*x*x*x;},4);
-
-    ASSERT_EQ((int)round(result*5), 2) << "Teste da integral de x*x*x*x";
-
-   auto f = [](double x){return x*x -x + 1.0/4.0;};
-   result = gauss_legendre(f,2);
-
-    ASSERT_EQ((int)round(result*6), 7) << "Teste da integral de x*x - x + 1/4";
-
-    
-
+    return eval;
 }
+
 
 std::vector<double> linspace(double initial_value, double final_value, int N) {
     std::vector<double> X(N);
@@ -111,17 +106,6 @@ std::vector<double> linspace(double initial_value, double final_value, int N) {
     return X;
 }
 
-TEST(BuildingTest, linspaceTest) {
-
-    auto X = linspace(0.0, 1.0, 5);
-
-    std::vector<double> XTest = {0.0, 0.25, 0.5, 0.75, 1.0};
-
-    int i = 0;
-    for(auto v: X) {
-        ASSERT_EQ(v,XTest[i++]) << "position i in vector X:" << i;
-    }
-}
 
 void evaluate_solution(double x, std::vector<double> X, vector u, std::vector<std::vector<int>> LM, double &r, double &dr) {
     int order = 1;

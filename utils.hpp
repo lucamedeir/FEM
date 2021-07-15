@@ -15,6 +15,7 @@ extern std::vector<std::vector<gaussian_point>> g_roots;
 
 
 double gauss_legendre(std::function<double(double)> f, int n);
+double gauss_legendre2D(std::function<double(double,double)> f, int n);
 std::vector<double> linspace(double initial_value, double final_value, int N);
 void save( vector u, std::vector<std::vector<int>> LM, const char* filename);
 void print( vector u, std::vector<std::vector<int>> LM);
