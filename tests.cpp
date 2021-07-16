@@ -3,7 +3,65 @@
 #include "interpol.hpp"
 #include <gtest/gtest.h>
 
-TEST(BuildCe2DSuite, buildCe2DTest) {
+TEST(Build2DSuite, buildLM2DTestNe3) {
+    std::vector<std::vector<int>> LM2DTest = { {1, 2, 5, 6},
+                                               {2, 3, 6, 7},
+                                               {3, 4, 7, 8},
+
+                                               {5, 6, 9, 10},
+                                               {6, 7, 10, 11},
+                                               {7, 8, 11, 12},
+
+                                               {9, 10, 13, 14},
+                                               {10, 11, 14, 15},
+                                               {11, 12, 15, 16}};
+    
+    
+
+    int nos = 4;
+    int nE = 3;
+
+    auto LM2D = build_LM2D(nE);
+
+    ASSERT_EQ(LM2D.size(), LM2DTest.size()) << "Sizes not equal";
+
+    for(int i = 0; i < LM2D.size(); i++) {
+        auto e = LM2D[i];
+        auto eTest = LM2D[i];
+
+        for(int k = 0; k < nos; k++) {
+            ASSERT_EQ(e[k], eTest[k]) << "Error in index " << k;
+        }
+    }
+}
+
+TEST(Build2DSuite, buildLM2DTestNe2) {
+    std::vector<std::vector<int>> LM2DTest = { {1, 2, 4, 5},
+                                               {2, 3, 5, 6},
+
+                                               {4, 5, 7, 8},
+                                               {5, 6, 8, 9}};
+    
+    
+
+    int nos = 4;
+    int nE = 2;
+
+    auto LM2D = build_LM2D(nE);
+
+    ASSERT_EQ(LM2D.size(), LM2DTest.size()) << "Sizes not equal";
+
+    for(int i = 0; i < LM2D.size(); i++) {
+        auto e = LM2D[i];
+        auto eTest = LM2D[i];
+
+        for(int k = 0; k < nos; k++) {
+            ASSERT_EQ(e[k], eTest[k]) << "Error in index " << k;
+        }
+    }
+}
+
+TEST(Build2DSuite, buildCe2DTest) {
 
     auto Ce = build_Ce2D([](double x, double y){return 1;});
     std::vector<double> CeTest = {4.0, 2.0, 2.0, 1.0, 2.0, 4.0, 1.0, 2.0, 2.0, 1.0, 4.0, 2.0, 1.0, 2.0, 2.0, 4.0};
@@ -15,7 +73,7 @@ TEST(BuildCe2DSuite, buildCe2DTest) {
     delete[] Ce.m;
 }
 
-TEST(BuildCe2DSuite, buildAe2DTest) {
+TEST(Build2DSuite, buildAe2DTest) {
 
     auto Ae = build_Ae2D([](double x, double y){return 1;});
     std::vector<double> AeTest = {4.0, -1.0, -1.0, -2.0, -1.0, 4.0, -2.0, -1.0, -1.0, -2.0, 4.0, -1.0, -2.0, -1.0, -1.0, 4.0};

@@ -12,6 +12,8 @@ typedef struct vector {
     int n;
 } vector;
 
+std::vector<std::vector<int>> build_LM2D(int nE);
+
 matrix build_Ce2D(std::function<double(double,double)> f);
 matrix build_Ae2D(std::function<double(double,double)> f);
 

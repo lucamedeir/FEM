@@ -9,6 +9,40 @@
 #include "interpol.hpp"
 #include <functional>
 
+std::vector<std::vector<int>> build_LM2D(int nE) {
+
+
+    std::vector<std::vector<int>> LM;
+
+    const int nEX = nE;
+    const int nEY = nE;
+    const int nos = 4;
+    LM.reserve(nEX*nEY);
+    int e = 0;
+    int chi = nE - 1;
+
+    for(int col = 0; col < nEX; col++) {
+        for(int row = 0; row < nEY; row++) {
+            e = col + row*nEX;
+
+            std::vector<int> global_p;
+            global_p.reserve(nos);
+
+            for(int k = 0; k < nos; k++) {
+                
+                if ( k <= 1) {
+                    global_p.push_back(k + e + row + 1);
+                } else {
+                    global_p.push_back(k + e + row + chi + 1);
+                }
+            }
+            LM.push_back(global_p);
+        }
+    }
+
+    return LM;
+}
+
 matrix build_Ce2D(std::function<double(double,double)> f) {
     const int size = 4;
     double* Ce = new double[size*size];
