@@ -22,3 +22,5 @@ $$-\alpha u'' + u = x.$$
 This is the numerical solution compared to the exact solution.
 
 ![solution](./example.png)
+
+This [Jupyter notebook](./fem.ipnyb) explains in detail the code logic.]
