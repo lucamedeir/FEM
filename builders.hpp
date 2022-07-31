@@ -16,6 +16,7 @@ std::vector<std::vector<int>> build_LM2D(int nE);
 
 matrix build_Ce2D(std::function<double(double,double)> f);
 matrix build_Ae2D(std::function<double(double,double)> f);
+vector build_Fe2D(double ax, double bx, double ay, double by, std::function<double(double,double)> f);
 
 
 matrix build_Ce(int n, std::function<double(double)> f);
@@ -28,3 +29,7 @@ matrix build_K(std::vector<double> X, std::vector<std::vector<int>> LM, std::fun
 vector build_F(std::vector<double> X, std::vector<std::vector<int>> LM, std::function<double(double)> f,  int n);
 vector solve(matrix K, vector F);
 void set_boundary(matrix K,vector F, double ni, double nf,  double ui, double uf);
+matrix build_K2D(std::vector<double> X,
+               std::vector<std::vector<int>> LM, 
+               std::function<double(double)> alpha, 
+               std::function<double(double)> gamma);

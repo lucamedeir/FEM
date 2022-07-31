@@ -3,6 +3,18 @@
 #include "interpol.hpp"
 #include <gtest/gtest.h>
 
+TEST(Build2DSuite, build_Fe2DTest) {
+    std::vector<double> Fe2DTest = {1.0,1.0,1.0,1.0};
+
+    auto Fe2D = build_Fe2D(0,0,0,0,[](double e, double r){return 1.0;});
+
+    for(int i = 0; i < 4; i++) {
+        ASSERT_LT(abs(Fe2D.m[i]-Fe2DTest[i]), 0.0001) << "index " << i;
+    }
+
+    delete[] Fe2D.m;
+}
+
 TEST(Build2DSuite, buildLM2DTestNe3) {
     std::vector<std::vector<int>> LM2DTest = { {1, 2, 5, 6},
                                                {2, 3, 6, 7},

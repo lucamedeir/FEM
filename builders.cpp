@@ -9,6 +9,60 @@
 #include "interpol.hpp"
 #include <functional>
 
+
+vector build_Fe2D(double ax, double bx, double ay, double by, std::function<double(double,double)> f) {
+
+    int size = 4;
+
+    double* Fe = new double[size];
+
+    for(int row = 0; row < size; row++) {
+        Fe[row] = gauss_legendre2D([&row, &ax, &bx, &ay, &by, f](double e, double r){return f( (bx-ax)/2*(e+1)+ax, (by-ay)/2*(r+1)+ay )*n1pol2D(row,e,r);},5);
+    }
+
+    vector result = {Fe, size};
+
+    return result;
+}
+
+matrix build_K2D(std::vector<double> X,
+               std::vector<std::vector<int>> LM, 
+               std::function<double(double,double)> alpha, 
+               std::function<double(double,double)> gamma) {
+    int N = X.size();
+
+    int size_K = N;
+
+    double he = X[1]-X[0];
+
+    auto Ae = build_Ae2D(alpha);
+    auto Ce = build_Ce2D(gamma);
+
+    double* K = new double[size_K*size_K];
+    for(int i = 0; i < size_K*size_K; i++) K[i] = 0;
+
+    int e_index = 0 ; // index do elemento
+    int local_i, local_j;
+    for(auto e: LM) {
+
+        for(int local_i = 0; local_i < e.size(); local_i ++) {
+            for(int local_j = 0; local_j < e.size(); local_j ++) {
+                auto global_i = e[local_i]-1;
+                auto global_j = e[local_j]-1;
+
+                K[global_i + global_j*size_K] += 4/(he*he)*Ae.m[local_i + local_j*Ae.nrows] + he*he/4*Ce.m[local_i + local_j*Ce.nrows];
+            }
+        }
+    }
+
+    matrix result = {K, size_K, size_K};
+
+    delete[] Ae.m;
+    delete[] Ce.m;
+
+    return result;
+}
+
 std::vector<std::vector<int>> build_LM2D(int nE) {
 
 
@@ -267,16 +321,14 @@ matrix build_K(std::vector<double> X,
     int local_i, local_j;
     for(auto e: LM) {
 
-        for(auto global_i: e) {
-            for(auto global_j: e) {
-                local_i = global_i - n*e_index;
-                local_j = global_j - n*e_index;
+        for(int local_i = 0; local_i < e.size(); local_i ++) {
+            for(int local_j = 0; local_j < e.size(); local_j ++) {
+                auto global_i = e[local_i];
+                auto global_j = e[local_j];
 
-
-                K[global_i + global_j*size_K] += 2/he*Ae.m[local_i + local_j*Ae.nrows] + he/2*Ce.m[local_i + local_j*Ce.nrows] + Be.m[local_i + local_j*Ce.nrows];
+                K[global_i + global_j*size_K] += 2/he*Ae.m[local_i + local_j*Ae.nrows] + he/2*Ce.m[local_i + local_j*Ce.nrows] + Be.m[local_i + local_j*Be.nrows];
             }
         }
-        e_index++;
     }
 
     K[0] += 2/he*Ae.m[Ae.nrows*Ae.ncols-1] + he/2*Ce.m[Ce.nrows*Ce.ncols-1] + Be.m[Be.ncols*Be.nrows-1];
@@ -286,6 +338,7 @@ matrix build_K(std::vector<double> X,
     matrix result = {K, size_K, size_K};
 
     delete[] Ae.m;
+    delete[] Be.m;
     delete[] Ce.m;
 
     return result;

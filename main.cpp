@@ -108,7 +108,7 @@ void execute(const int NumberOfPoints,
     auto alpha_f = [&alpha](double x) {return alpha;};
     auto beta_f = [&beta](double){return beta;};
     auto gamma_f = [&gamma](double x) {return gamma;};
-    auto f = [](double x) {return 1;};
+    auto f = [](double x) {return x;};
 
     auto K = build_K(X, LM, alpha_f, beta_f, gamma_f, order);
     auto F = build_F(X, LM, f, order);
@@ -142,7 +142,7 @@ void execute_and_interpolate(const int NumberOfPoints,
     auto alpha_f = [&alpha](double x) {return alpha;};
     auto beta_f = [&beta](double){return beta;};
     auto gamma_f = [&gamma](double x) {return gamma;};
-    auto f = [](double x) {return 1;};
+    auto f = [](double x) {return x;};
 
     auto K = build_K(X, LM, alpha_f, beta_f, gamma_f, order);
     auto F = build_F(X, LM, f, order);
@@ -256,8 +256,8 @@ int parser(int argc, char** argv, int &N, int &order, double &alpha, double &bet
 
 
 int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    auto test = RUN_ALL_TESTS();
+    //::testing::InitGoogleTest(&argc, argv);
+    //auto test = RUN_ALL_TESTS();
 
     int NumberOfPoints = 2;
     int NInt = 4;
@@ -270,10 +270,10 @@ int main(int argc, char **argv) {
     double ui = 0;
     double uf = 0;
    
-    //int result = parser(argc, argv, NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt, printInterpolation, printError);
-    int result = 0;
+    int result = parser(argc, argv, NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt, printInterpolation, printError);
+    //int result = 0;
 
-/*
+
     if(result == 0) {
         if (printInterpolation) {
             execute_and_interpolate(NumberOfPoints, order, alpha, beta, gamma, ui, uf, NInt);
@@ -282,9 +282,9 @@ int main(int argc, char **argv) {
         } else {
             execute(NumberOfPoints, order, alpha, beta, gamma, ui, uf);
         }
-    }*/
+    }
 
 
-    return test;
-    //return 0;
+    //return test;
+    return 0;
 }
